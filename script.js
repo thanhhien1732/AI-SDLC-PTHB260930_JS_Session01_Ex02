@@ -62,6 +62,28 @@ function getFinalPrice(price, couponCode) {
     return price - (price * discountPercent) / 100;
 }
 
+// Xét điều kiện cấp chứng chỉ theo tiến độ (0-100) và điểm trung bình (0-10) bằng chuỗi điều kiện phẳng
+function getCertificateResult(progress, average) {
+  if (
+    typeof progress !== "number" ||
+    Number.isNaN(progress) ||
+    progress < 0 ||
+    progress > 100 ||
+    typeof average !== "number" ||
+    Number.isNaN(average) ||
+    average < 0 ||
+    average > 10
+  ) {
+    return "Dữ liệu không hợp lệ";
+  } else if (progress < 80) {
+    return "Chưa đủ tiến độ";
+  } else if (average < 5) {
+    return "Chưa đủ điểm";
+  } else {
+    return "Đủ điều kiện cấp chứng chỉ";
+  }
+}
+
 
 
 // ================  TEST  ===================
@@ -106,3 +128,11 @@ runTest("Giá 100.000đ, STUDENT20 -> 80.000đ", getFinalPrice(100000, "STUDENT2
 runTest("Mã không hợp lệ -> Giữ nguyên giá 100.000đ", getFinalPrice(100000, "INVALID"), 100000);
 runTest("Giá âm (-50.000) -> null", getFinalPrice(-50000, "WELCOME10"), null);
 runTest("Giá không phải số -> null", getFinalPrice("100000", "WELCOME10"), null);
+
+console.log("\n----- 5. TEST getCertificateResult -----");
+runTest("Tiến độ 80%, điểm 5 (vừa đủ cả 2) -> Đủ điều kiện", getCertificateResult(80, 5), "Đủ điều kiện cấp chứng chỉ");
+runTest("Tiến độ 100%, điểm 10 -> Đủ điều kiện", getCertificateResult(100, 10), "Đủ điều kiện cấp chứng chỉ");
+runTest("Tiến độ 79%, điểm 9 -> Chưa đủ tiến độ", getCertificateResult(79, 9), "Chưa đủ tiến độ");
+runTest("Tiến độ 90%, điểm 4.9 -> Chưa đủ điểm", getCertificateResult(90, 4.9), "Chưa đủ điểm");
+runTest("Tiến độ 105% -> Dữ liệu không hợp lệ", getCertificateResult(105, 8), "Dữ liệu không hợp lệ");
+runTest("Điểm -1 -> Dữ liệu không hợp lệ", getCertificateResult(85, -1), "Dữ liệu không hợp lệ");
